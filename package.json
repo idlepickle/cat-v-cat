@@ -2,6 +2,6 @@
   "name": "cat-v-cat",
   "version": "1.0.0",
   "dependencies": {
-    "@vercel/og": "^1.1.0"
+    "@vercel/og": "^0.8.5"
   }
 }
