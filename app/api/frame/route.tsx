@@ -1,3 +1,5 @@
+// ADDED: Explicit React import to fix JSX syntax error
+import React from "react";
 import { createFrames, Button } from "frames.js/next";
 import { kv } from "@vercel/kv";
 
@@ -41,7 +43,6 @@ const handleRequest = frames(async (ctx) => {
   // ================================================================
   // STATE 1: HANDLE A VOTE
   // ================================================================
-  // We check if we have a button click (message) AND if cats exist in state
   if (ctx.message && ctx.state.cat1 && ctx.state.cat2) {
     const { cat1, cat2 } = ctx.state;
     const chosenCat = ctx.message.buttonIndex === 1 ? cat1 : cat2;
@@ -119,7 +120,6 @@ const handleRequest = frames(async (ctx) => {
     const [cat1, cat2] = await getTwoRandomCats();
 
     return {
-      // State must match the State interface we defined earlier
       state: { cat1, cat2 },
       image: (
         <div
@@ -141,4 +141,53 @@ const handleRequest = frames(async (ctx) => {
               fontWeight: "bold",
               fontStyle: "italic",
               color: "#FFD700",
-              textShadow: "2px 2px
+              textShadow: "2px 2px 4px #000",
+              marginBottom: "40px",
+            }}
+          >
+            Cat v Cat
+          </h1>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "80%",
+            }}
+          >
+            <div style={{ width: "300px", height: "300px", display: "flex", borderRadius: "15px", overflow: "hidden", border: "3px solid white" }}>
+                <img src={cat1.url} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            </div>
+
+            <span
+              style={{
+                fontSize: "50px",
+                fontWeight: "900",
+                margin: "0 20px",
+                color: "#FF4500",
+              }}
+            >
+              VS
+            </span>
+
+            <div style={{ width: "300px", height: "300px", display: "flex", borderRadius: "15px", overflow: "hidden", border: "3px solid white"  }}>
+               <img src={cat2.url} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            </div>
+          </div>
+        </div>
+      ),
+      buttons: [
+        <Button action="post" aspectRatio="1:1">👈 Vote Left</Button>,
+        <Button action="post" aspectRatio="1:1">Vote Right 👉</Button>,
+      ],
+    };
+  } catch (e) {
+      return {
+          image: (<div>Error fetching cats. Try again.</div>),
+          buttons: [<Button action="post">Retry</Button>]
+      }
+  }
+});
+
+export const GET = handleRequest;
+export const POST = handleRequest;
