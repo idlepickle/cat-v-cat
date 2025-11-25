@@ -1,4 +1,3 @@
-// ADDED: Explicit React import to fix JSX syntax error
 import React from "react";
 import { createFrames, Button } from "frames.js/next";
 import { kv } from "@vercel/kv";
@@ -17,6 +16,15 @@ type State = {
   cat1: CatImage | null;
   cat2: CatImage | null;
 }
+
+// === FIX: OPTIMIZATION FUNCTION TO AVOID 256KB LIMIT ===
+function getOptimizedCatUrl(url: string): string {
+  const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000";
+  // Request a 640px wide image with quality 75 to compress the file size
+  return `${baseUrl}/_next/image?url=${encodeURIComponent(url)}&w=640&q=75`;
+}
+// =======================================================
+
 
 // 3. Initialize frames with the State type and initial values
 const frames = createFrames<State>({
@@ -52,7 +60,6 @@ const handleRequest = frames(async (ctx) => {
 
     const chosenScore = await kv.zscore(LEADERBOARD_KEY, chosenCat.url) || 0;
     const notChosenScore = await kv.zscore(LEADERBOARD_KEY, notChosenCat.url) || 0;
-    //const rawTop3 = await kv.zrevrange(LEADERBOARD_KEY, 0, 2, { withScores: true });
     const rawTop3 = await kv.zrange(LEADERBOARD_KEY, 0, 2, { withScores: true, rev: true });
 
     return {
@@ -77,7 +84,8 @@ const handleRequest = frames(async (ctx) => {
 
           <div style={{ display: "flex", alignItems: "center", gap: "20px", marginBottom: "30px" }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <img src={cat1.url} width="200" height="200" style={{ objectFit: "cover", borderRadius: "10px", border: cat1.id === chosenCat.id ? "4px solid #FFD700" : "none"}} />
+              {/* UPDATED: Optimized URL for cat1 */}
+              <img src={getOptimizedCatUrl(cat1.url)} width="200" height="200" style={{ objectFit: "cover", borderRadius: "10px", border: cat1.id === chosenCat.id ? "4px solid #FFD700" : "none"}} />
               {cat1.id === chosenCat.id && <span style={{color: "#FFD700", fontSize: "24px", marginTop: "10px"}}>dis one ✓</span>}
               <span style={{fontSize: "20px", marginTop: "5px"}}>{cat1.id === chosenCat.id ? chosenScore : notChosenScore} Votes</span>
             </div>
@@ -85,7 +93,8 @@ const handleRequest = frames(async (ctx) => {
              <span style={{ fontSize: "30px", fontWeight: "bold" }}>VS</span>
 
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <img src={cat2.url} width="200" height="200" style={{ objectFit: "cover", borderRadius: "10px", border: cat2.id === chosenCat.id ? "4px solid #FFD700" : "none"}} />
+              {/* UPDATED: Optimized URL for cat2 */}
+              <img src={getOptimizedCatUrl(cat2.url)} width="200" height="200" style={{ objectFit: "cover", borderRadius: "10px", border: cat2.id === chosenCat.id ? "4px solid #FFD700" : "none"}} />
               {cat2.id === chosenCat.id && <span style={{color: "#FFD700", fontSize: "24px", marginTop: "10px"}}>dis one ✓</span>}
               <span style={{fontSize: "20px", marginTop: "5px"}}>{cat2.id === chosenCat.id ? chosenScore : notChosenScore} Votes</span>
             </div>
@@ -99,7 +108,8 @@ const handleRequest = frames(async (ctx) => {
                   const score = rawTop3[i * 2 + 1] as number;
                   return (
                    <div key={url} style={{display: 'flex', flexDirection:'column', alignItems:'center'}}>
-                       <img src={url} width="60" height="60" style={{objectFit:"cover", borderRadius:"50%"}}/>
+                       {/* UPDATED: Optimized URL for leaderboard image */}
+                       <img src={getOptimizedCatUrl(url)} width="60" height="60" style={{objectFit:"cover", borderRadius:"50%"}}/>
                        <span>#{i+1}: {score} pts</span>
                    </div>
                   )
@@ -157,7 +167,8 @@ const handleRequest = frames(async (ctx) => {
             }}
           >
             <div style={{ width: "300px", height: "300px", display: "flex", borderRadius: "15px", overflow: "hidden", border: "3px solid white" }}>
-                <img src={cat1.url} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                {/* UPDATED: Optimized URL for cat1 */}
+                <img src={getOptimizedCatUrl(cat1.url)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
 
             <span
@@ -172,7 +183,8 @@ const handleRequest = frames(async (ctx) => {
             </span>
 
             <div style={{ width: "300px", height: "300px", display: "flex", borderRadius: "15px", overflow: "hidden", border: "3px solid white"  }}>
-               <img src={cat2.url} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+               {/* UPDATED: Optimized URL for cat2 */}
+               <img src={getOptimizedCatUrl(cat2.url)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
           </div>
         </div>
