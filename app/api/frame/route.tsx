@@ -178,8 +178,8 @@ const handleRequest = frames(async (ctx) => {
         </div>
       ),
       buttons: [
-        <Button action="post" aspectRatio="1:1">👈 Vote Left</Button>,
-        <Button action="post" aspectRatio="1:1">Vote Right 👉</Button>,
+        <Button action="post">👈 Vote Left</Button>,
+        <Button action="post">Vote Right 👉</Button>,
       ],
     };
   } catch (e) {
