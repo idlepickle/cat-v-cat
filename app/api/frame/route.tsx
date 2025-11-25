@@ -52,7 +52,8 @@ const handleRequest = frames(async (ctx) => {
 
     const chosenScore = await kv.zscore(LEADERBOARD_KEY, chosenCat.url) || 0;
     const notChosenScore = await kv.zscore(LEADERBOARD_KEY, notChosenCat.url) || 0;
-    const rawTop3 = await kv.zrevrange(LEADERBOARD_KEY, 0, 2, { withScores: true });
+    //const rawTop3 = await kv.zrevrange(LEADERBOARD_KEY, 0, 2, { withScores: true });
+    const rawTop3 = await kv.zrange(LEADERBOARD_KEY, 0, 2, { withScores: true, rev: true });
 
     return {
       image: (
